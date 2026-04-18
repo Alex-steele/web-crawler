@@ -1,1 +1,5 @@
-﻿Console.WriteLine("Hello, World!");
+﻿using Microsoft.Extensions.DependencyInjection;
+
+var services = new ServiceCollection();
+
+var serviceProvider = services.BuildServiceProvider();
