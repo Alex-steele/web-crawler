@@ -29,7 +29,7 @@ public class ConcurrentWebCrawler
         
         var crawlerTasks = new List<Task>();
         
-        for (var i = 0; i < 100; i++)
+        for (var i = 0; i < Environment.ProcessorCount*5; i++)
             crawlerTasks.Add(RunCrawlerWorker(baseUri, cancellationToken));
         
         await Task.WhenAll(crawlerTasks);
@@ -42,18 +42,26 @@ public class ConcurrentWebCrawler
     {
         while (await _unvisitedUris.Reader.WaitToReadAsync(cancellationToken))
         {
-            if (_unvisitedUris.Reader.TryRead(out var uri) == false) 
-                continue;
-            
             Interlocked.Increment(ref _activeWorkers);
+
+            if (_unvisitedUris.Reader.TryRead(out var uri) == false)
+            {
+                Interlocked.Decrement(ref _activeWorkers);
+                continue;
+            }
 
             try
             {
                 var uris = await _pageCrawler.CrawlPageAsync(uri, baseUri, cancellationToken);
                 var unvisitedUris = uris.Where(u => _seenUris.TryAdd(u, true));
-                
+
                 foreach (var unvisitedUri in unvisitedUris)
                     await _unvisitedUris.Writer.WriteAsync(unvisitedUri, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while crawling {Uri}", uri);
+                throw;
             }
             finally
             {

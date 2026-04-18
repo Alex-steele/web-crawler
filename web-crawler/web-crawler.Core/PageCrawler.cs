@@ -28,16 +28,12 @@ public class PageCrawler : IPageCrawler
 
         var html = await _apiClient.GetHtmlAsync(uri, cancellationToken);
         if (html == null)
-        {
-            _logger.LogWarning("Failed to fetch html from Uri: {Uri}", uri);
             return [];
-        }
 
         var uris = _uriExtractor.Extract(html, uri);
         _output.Write(new CrawlResult(uri, uris));
         
-        _logger.LogInformation("Found {Count} uris on {Uri}:\n{Uris}",
-            uris.Count, uri, string.Join(Environment.NewLine, uris));
+        _logger.LogInformation("Found {Count} uris on {Uri}:\n{Uris}", uris.Count, uri, string.Join(Environment.NewLine, uris));
         
         return uris.Where(u => ShouldVisit(u, baseUri)).ToList();
     }
