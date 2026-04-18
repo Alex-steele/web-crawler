@@ -2,7 +2,12 @@ using Microsoft.Extensions.Logging;
 
 namespace web_crawler.Core;
 
-public class MonzoApiClient
+public interface IMonzoApiClient
+{
+    Task<string?> GetHtmlAsync(string url, CancellationToken cancellationToken);
+}
+
+public class MonzoApiClient : IMonzoApiClient
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<MonzoApiClient> _logger;
@@ -13,7 +18,7 @@ public class MonzoApiClient
         _logger = logger;
     }
 
-    protected async Task<string?> GetHtmlAsync(string url, CancellationToken cancellationToken)
+    public async Task<string?> GetHtmlAsync(string url, CancellationToken cancellationToken)
     {
         var client = _httpClientFactory.CreateClient(nameof(MonzoApiClient));
 
