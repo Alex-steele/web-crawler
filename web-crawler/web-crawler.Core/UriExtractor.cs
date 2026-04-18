@@ -8,7 +8,7 @@ public class UriExtractor
     
     public IReadOnlyList<Uri> Extract(string html, Uri baseUri)
     {
-        var document = _htmlParser.ParseDocument(html);
+        using var document = _htmlParser.ParseDocument(html);
         
         return document
             .QuerySelectorAll("a[href]")
@@ -26,5 +26,4 @@ public class UriExtractor
 
         return uri.IsAbsoluteUri ? uri : new Uri(baseUri, uri);
     }
-    
 }
