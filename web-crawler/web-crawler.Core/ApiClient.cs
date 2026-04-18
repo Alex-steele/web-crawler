@@ -2,40 +2,40 @@ using Microsoft.Extensions.Logging;
 
 namespace web_crawler.Core;
 
-public interface IMonzoApiClient
+public interface IApiClient
 {
-    Task<string?> GetHtmlAsync(string url, CancellationToken cancellationToken);
+    Task<string?> GetHtmlAsync(Uri uri, CancellationToken cancellationToken);
 }
 
-public class MonzoApiClient : IMonzoApiClient
+public class ApiClient : IApiClient
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger<MonzoApiClient> _logger;
+    private readonly ILogger<ApiClient> _logger;
 
-    protected MonzoApiClient(IHttpClientFactory httpClientFactory, ILogger<MonzoApiClient> logger)
+    public ApiClient(IHttpClientFactory httpClientFactory, ILogger<ApiClient> logger)
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
 
-    public async Task<string?> GetHtmlAsync(string url, CancellationToken cancellationToken)
+    public async Task<string?> GetHtmlAsync(Uri uri, CancellationToken cancellationToken)
     {
-        var client = _httpClientFactory.CreateClient(nameof(MonzoApiClient));
+        var client = _httpClientFactory.CreateClient(nameof(ApiClient));
 
         try
         {
-            _logger.LogInformation("Fetching content from {url}", url);
-            using var response = await client.GetAsync(url, cancellationToken);
+            _logger.LogInformation("Fetching content from {uri}", uri);
+            using var response = await client.GetAsync(uri, cancellationToken);
             
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("Received non-successful status code {ResponseStatusCode} from Url {Url}.", response.StatusCode, url);
+                _logger.LogWarning("Received non-successful status code {ResponseStatusCode} from {Uri}.", response.StatusCode, uri);
                 return null;
             }
 
             if (!IsHtml(response))
             {
-                _logger.LogWarning("Url {Url} did not return html.", url);
+                _logger.LogWarning("Uri: {Uri} did not return html.", uri);
                 return null;
             }
 
@@ -43,12 +43,12 @@ public class MonzoApiClient : IMonzoApiClient
         }
         catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            _logger.LogWarning("Http request timed out for url: {url}", url);
+            _logger.LogWarning("Http request timed out for uri: {Uri}", uri);
             return null;
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogWarning(ex, "Http request failed for url: {url}", url);
+            _logger.LogWarning(ex, "Http request failed for uri: {Uri}", uri);
             return null;
         }
     }
