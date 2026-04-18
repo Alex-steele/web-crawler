@@ -2,7 +2,7 @@ using AngleSharp.Html.Parser;
 
 namespace web_crawler.Core;
 
-public class UrlExtractor
+public class UriExtractor
 {
     private readonly HtmlParser _htmlParser = new();
     
@@ -15,21 +15,16 @@ public class UrlExtractor
             .Select(e => e.GetAttribute("href"))
             .Select(href => string.IsNullOrWhiteSpace(href) ? null : TryParseUri(href, baseUri))
             .OfType<Uri>()
+            .Distinct()
             .ToList();
     }
     
     private static Uri? TryParseUri(string href, Uri baseUri)
     {
-        try
-        {
-            return Uri.TryCreate(href, UriKind.Absolute, out var absoluteUri) 
-                ? absoluteUri 
-                : new Uri(baseUri, href);
-        }
-        catch (UriFormatException)
-        {
-            
+        if (!Uri.TryCreate(href, UriKind.RelativeOrAbsolute, out var uri))
             return null;
-        }
+
+        return uri.IsAbsoluteUri ? uri : new Uri(baseUri, uri);
     }
+    
 }
