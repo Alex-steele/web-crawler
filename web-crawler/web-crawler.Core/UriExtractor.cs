@@ -5,7 +5,7 @@ namespace web_crawler.Core;
 
 public interface IUriExtractor
 {
-    IReadOnlyList<Uri> Extract(string html, Uri baseUri);
+    Task<IReadOnlyList<Uri>> Extract(string html, Uri currentPageUri, CancellationToken cancellationToken);
 }
 
 public class UriExtractor : IUriExtractor
@@ -18,23 +18,23 @@ public class UriExtractor : IUriExtractor
         _logger = logger;
     }
 
-    public IReadOnlyList<Uri> Extract(string html, Uri baseUri)
+    public async Task<IReadOnlyList<Uri>> Extract(string html, Uri currentPageUri, CancellationToken cancellationToken)
     {
-        using var document = _htmlParser.ParseDocument(html);
+        using var document = await _htmlParser.ParseDocumentAsync(html, cancellationToken);
 
         return document
             .QuerySelectorAll("a[href]")
             .Select(e => e.GetAttribute("href"))
-            .Select(href => string.IsNullOrWhiteSpace(href) ? null : TryParseUri(href, baseUri))
+            .Select(href => string.IsNullOrWhiteSpace(href) ? null : TryParseUri(href, currentPageUri))
             .OfType<Uri>()
             .Distinct()
             .ToList();
     }
     
-    private Uri? TryParseUri(string href, Uri baseUri)
+    private Uri? TryParseUri(string href, Uri currentPageUri)
     {
         if (Uri.TryCreate(href, UriKind.RelativeOrAbsolute, out var uri))
-            return uri.IsAbsoluteUri ? uri : new Uri(baseUri, uri);
+            return uri.IsAbsoluteUri ? uri : new Uri(currentPageUri, uri);
         
         _logger.LogWarning("Failed to parse uri from href: {href}", href);
         return null;

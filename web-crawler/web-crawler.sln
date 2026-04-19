@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "web-crawler.Console", "web-
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "web-crawler.Core", "web-crawler.Core\web-crawler.Core.csproj", "{59535CA3-5EAB-45C5-BD27-11000259CA65}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "web-crawler.Tests", "web-crawler.Tests\web-crawler.Tests.csproj", "{CCEEBB8B-7FAE-42EA-9662-0E9B442B23E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{59535CA3-5EAB-45C5-BD27-11000259CA65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59535CA3-5EAB-45C5-BD27-11000259CA65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59535CA3-5EAB-45C5-BD27-11000259CA65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCEEBB8B-7FAE-42EA-9662-0E9B442B23E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCEEBB8B-7FAE-42EA-9662-0E9B442B23E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCEEBB8B-7FAE-42EA-9662-0E9B442B23E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCEEBB8B-7FAE-42EA-9662-0E9B442B23E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

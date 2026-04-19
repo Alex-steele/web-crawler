@@ -30,7 +30,7 @@ public class PageCrawler : IPageCrawler
         if (html == null)
             return [];
 
-        var uris = _uriExtractor.Extract(html, uri);
+        var uris = await _uriExtractor.Extract(html, uri, cancellationToken);
         _output.Write(new CrawlResult(uri, uris));
         
         _logger.LogInformation("Found {Count} uris on {Uri}:\n{Uris}", uris.Count, uri, string.Join(Environment.NewLine, uris));
