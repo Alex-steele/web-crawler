@@ -28,7 +28,7 @@ public class Program
     {
         services.AddHttpClient(nameof(ApiClient), client =>
             {
-                client.Timeout = TimeSpan.FromSeconds(10);
+                client.Timeout = TimeSpan.FromSeconds(20);
             })
             .AddTransientHttpErrorPolicy(policy => policy.WaitAndRetryAsync(
                 retryCount: 3,
