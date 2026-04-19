@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using web_crawler.Core;
 
-namespace web_crawler.Tests;
+namespace web_crawler.Tests.UnitTests;
 
 public class UriExtractorTests
 {

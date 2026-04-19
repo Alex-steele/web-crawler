@@ -5,7 +5,7 @@ using Moq;
 using Moq.Contrib.HttpClient;
 using web_crawler.Core;
 
-namespace web_crawler.Tests;
+namespace web_crawler.Tests.UnitTests;
 
 public class ApiClientTests
 {

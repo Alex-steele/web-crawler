@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using web_crawler.Core;
 
-namespace web_crawler.Tests;
+namespace web_crawler.Tests.UnitTests;
 
 public class PageCrawlerTests
 {
