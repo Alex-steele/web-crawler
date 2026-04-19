@@ -1,5 +1,12 @@
 # Web Crawler
 
+## Behaviour
+Given a starting URI, the crawler visits every page on the same subdomain, printing each URI visited and all links found on that page. It does not follow links to external domains or different subdomains.
+
+The crawl is driven by a producer/consumer pipeline. A pool of concurrent worker tasks read URLs from a shared channel, fetch each page over HTTP, extract links from the HTML, and enqueue any newly discovered same-domain URLs for processing. The crawler terminates once the channel is empty and all workers have finished.
+
+---
+
 ## How to run
 
 ### Docker
@@ -24,13 +31,6 @@ Press `Ctrl+C` to stop the crawler. The application listens for this signal via 
 - Claude was used for research and questions, but not for writing any code.
 - Claude generated inline HTML for tests.
 - Claude formatted this README and helped with some of the wording.
-
----
-
-## Behaviour
-Given a starting URI, the crawler visits every page on the same subdomain, printing each URI visited and all links found on that page. It does not follow links to external domains or different subdomains.
-
-The crawl is driven by a producer/consumer pipeline. A pool of concurrent worker tasks read URLs from a shared channel, fetch each page over HTTP, extract links from the HTML, and enqueues any newly discovered same-domain URLs for processing. The crawler terminates naturally once the channel is empty and all workers have finished.
 
 ---
 
