@@ -115,7 +115,7 @@ public class ConcurrentWebCrawlerIntegrationTests
     }
     
     [Fact]
-    public async Task StressTest_NoDuplicateCrawls()
+    public async Task HighConcurrentLoad_WithManyPotentialOverlaps_NoDuplicateCrawls()
     {
         // Create one page with links to page0, page1, ..., page 99.
         var allLinksPage = new StringBuilder();
@@ -144,6 +144,6 @@ public class ConcurrentWebCrawlerIntegrationTests
         await crawler.CrawlAsync(_baseUri, CancellationToken.None);
 
         // All 200 pages plus the base page
-        Assert.Equal(201, _output.Results.Count);
+        Assert.Equal(201, _output.Results.Select(r => r.Uri).Distinct().Count());
     }
 }

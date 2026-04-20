@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Polly;
 using web_crawler.Core;
@@ -10,22 +9,32 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        var host = Host.CreateDefaultBuilder(args)
-            .ConfigureLogging(logging =>
-            {
-                logging.SetMinimumLevel(LogLevel.Warning);
-            })
-            .ConfigureServices(RegisterServices)
-            .Build();
-
-        var cancellationToken = host.Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
+        var services = new ServiceCollection();
+        RegisterServices(services);
+        var provider = services.BuildServiceProvider();
         
-        await host.Services.GetRequiredService<ConcurrentWebCrawler>()
-            .CrawlAsync(new Uri("https://crawlme.monzo.com/"), cancellationToken);
+        var cancellationTokenSource = new CancellationTokenSource();
+        System.Console.CancelKeyPress += (_, eventArgs) =>
+        {
+            eventArgs.Cancel = true;
+            cancellationTokenSource.Cancel();
+        };
+        
+        try
+        {
+            await provider.GetRequiredService<ConcurrentWebCrawler>()
+                .CrawlAsync(new Uri("https://crawlme.monzo.com/"), cancellationTokenSource.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            System.Console.WriteLine("Crawl cancelled");
+        }
     }
 
     public static void RegisterServices(IServiceCollection services)
     {
+        services.AddLogging(logging => { logging.SetMinimumLevel(LogLevel.Warning); });
+
         services.AddHttpClient(nameof(ApiClient), client =>
             {
                 client.Timeout = TimeSpan.FromSeconds(20);

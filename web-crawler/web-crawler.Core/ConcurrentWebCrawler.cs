@@ -58,15 +58,15 @@ public class ConcurrentWebCrawler
                 foreach (var unvisitedUri in unvisitedUris)
                     await _unvisitedUris.Writer.WriteAsync(unvisitedUri, cancellationToken);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
             {
                 _logger.LogError(ex, "Error while crawling {Uri}", uri);
             }
             finally
             {
-                Interlocked.Decrement(ref _activeWorkers);
+                var remainingActiveWorkers = Interlocked.Decrement(ref _activeWorkers);
 
-                if (_unvisitedUris.Reader.Count == 0 && _activeWorkers == 0)
+                if (_unvisitedUris.Reader.Count == 0 && remainingActiveWorkers == 0)
                     _unvisitedUris.Writer.TryComplete();
             }
         }

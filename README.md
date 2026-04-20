@@ -23,7 +23,7 @@ dotnet run
 ```
 
 ### How to stop (and what happens)
-Press `Ctrl+C` to stop the crawler. The application listens for this signal via `IHostApplicationLifetime.ApplicationStopping` and propagates a `CancellationToken` throughout the crawl. Workers will finish their current page and exit gracefully.
+Press `Ctrl+C` to stop the crawler. The app wires up a `CancellationToken` to the `CancelKeyPress` event and propagates it throughout the crawl. Workers will finish their current page and exit gracefully.
 
 ---
 
@@ -78,7 +78,7 @@ Testing is structured in two layers:
 ## Limitations and trade-offs
 
 ### Error handling
-- `HttpClient` is configured with a 10 second timeout and exponential backoff retries (up to 3 attempts) via the Polly package for transient HTTP errors.
+- `HttpClient` is configured with a 20 second timeout and exponential backoff retries (up to 3 retries) via the Polly package for transient HTTP errors.
 - Errors are swallowed and logged at warning level rather than propagated — the crawler makes a best effort but could feasibly miss pages that consistently fail.
 - An alternative approach would be to throw on errors, which would give more confidence that all pages have been traversed, but would stop the process if any bad links are found. Which way to go would depend on the requirements for this app.
 
@@ -93,6 +93,9 @@ Testing is structured in two layers:
 - Worker count (`Environment.ProcessorCount * 10`) is a relatively arbitrary number. This was manually tested against the monzo server. This could be optimised with a more intelligent strategy, depending on what the goals are.
 - Fragment links (e.g. `https://crawlme.monzo.com/#section`) are currently treated as distinct URLs, meaning the same page could be fetched more than once. Stripping fragments in `UriExtractor` before deduplication could improve performance.
 - Memory usage is relatively high under load due to AngleSharp building a full DOM tree per page. Profiling showed that switching from string-based parsing to streaming did not reduce allocations due to AngleSharp's internal buffering. A lighter-weight HTML parser or a custom one would reduce memory pressure at the cost of increased complexity.
+
+### Redirects
+- The HttpClient automatically follows redirects, so if any of the links redirected to an external site the crawler would crawl that page too. Redirects could either be disabled or inspected to check the Host.
 
 ### Testing
 - The Polly retry backoff delay is hardcoded in `Program.ConfigureServices`, which means integration tests that exercise retry behaviour must wait for real delays. Making the backoff duration configurable would allow tests to pass shorter delays without changing production behaviour. 

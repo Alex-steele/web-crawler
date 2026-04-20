@@ -10,7 +10,6 @@ public interface IUriExtractor
 
 public class UriExtractor : IUriExtractor
 {
-    private readonly HtmlParser _htmlParser = new();
     private readonly ILogger<UriExtractor> _logger;
 
     public UriExtractor(ILogger<UriExtractor> logger)
@@ -20,7 +19,7 @@ public class UriExtractor : IUriExtractor
 
     public async Task<IReadOnlyList<Uri>> Extract(string html, Uri currentPageUri, CancellationToken cancellationToken)
     {
-        using var document = await _htmlParser.ParseDocumentAsync(html, cancellationToken);
+        using var document = await new HtmlParser().ParseDocumentAsync(html, cancellationToken);
 
         return document
             .QuerySelectorAll("a[href]")
